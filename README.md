@@ -51,7 +51,7 @@ See also the list of [contributors](https://github.com/adfayed/predict-future-sa
 
 
 ## Acknowledgments
-For exploring the data. [Jagan]https://www.kaggle.com/jagangupta
+For exploring the data. [Jagan](https://www.kaggle.com/jagangupta)
 
-For suggesting using google translate on the russian data [deargle]https://www.kaggle.com/deargle [Python Package: mtranslate]https://pypi.org/project/mtranslate/
+For suggesting using google translate on the russian data [deargle](https://www.kaggle.com/deargle) [Python Package: mtranslate](https://pypi.org/project/mtranslate/)
 
