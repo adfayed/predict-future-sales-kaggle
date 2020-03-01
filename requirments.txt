@@ -1,0 +1,12 @@
+numpy
+scipy
+pandas
+matplotlib
+scikit-learn
+setuptools
+python-dateutil
+pytz
+numexpr
+bottleneck
+pytest
+mtranslate
