@@ -1,4 +1,4 @@
-# Project Title
+# Predict Future Sales Kaggle
 This is a Machine Learning Kaggle Competition Project aimed at prediciting future sales for using a challenging time-series dataset which consists of daily sales data by one of the largest Russian software firms - 1C Company. 
 
 We predict total sales for every product and store in the following month.
