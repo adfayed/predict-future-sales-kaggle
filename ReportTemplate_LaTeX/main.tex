@@ -1,0 +1,190 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+\PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2019
+
+\usepackage[final]{neurips_2019}
+
+% to avoid loading the natbib package, add option nonatbib:
+%     \usepackage[nonatbib]{neurips_2019}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\title{(CSCI 567 - DefinitelySemiPositive)}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{%
+  William Choi\\
+  Student\\
+  University of Southern California\\
+  Houston, TX 77098 \\
+  \texttt{wschoi@usc.edu} \\
+  % examples of more authors
+   \And
+  Ahmed Fayed\\
+  Student\\
+  University of Southern California\\
+  Los Angeles, CA 90007 \\
+  \texttt{fayed@usc.edu} \\
+   \And
+  Alex Winger\\
+  Student\\
+  University of Southern California\\
+  Los Angeles, CA 90007 \\
+  \texttt{winger@usc.edu} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We used data from the Kaggle competition Predict Future Sales to train our models. The goal was to predict as accurately as possible sales of a number of items for a future month. From the onset we aimed to try multiple models and possibly combine the individual results more methodically at a later stage. Our best results were obtained using XGBoost for a final score of TODO: INSERT FINAL SCORE HERE.
+\end{abstract}
+
+\section{Introduction}
+For this project we were given semi-ordered data containing sales record of various items sold at different electronic shops in Russia, and we were tasked with predicting sales of items at each of the shops.
+
+We first plotted the data in different ways to look for trends. TODO: William to continue here
+
+
+
+Some Thoughts:\newline
+\textbf{Ahmed}:\newline
+Should we try ensembles?\newline
+Try the models with outliers and then without and measure which gives a better score.\newline
+Try the models with negative value item cnt (returns) and then try removing these from the monthly sales and again compare scores.\newline
+
+
+\section{Previous work}
+
+We chose the first programming assignment, in particular the linear regression portion, to be our starting point. Trying to extract and fit the project training data for our first linear regression model provided us with a solid grasp on working with Pandas and Numpy libraries. We also familiarized ourselves with navigating through the existing example Kaggle notebooks submitted by previous competitors.
+Once each of us had gone though fitting a linear regression model, we explored XGBoost, traditional neural networks and long short-term memory networks.
+
+\textbf{Where did you draw inspiration from?} 
+(This could include articles you read, kaggle forum posts, or some article you found online. Remember to properly cite your sources.)\newline
+\textbf{Ahmed}:\newline
+Kaggle notebooks in references.bib\newline
+Assignment 1 from Class
+
+
+\section{Data}
+\textbf{What data did you use? Did you do anything to the data?}
+(Fill in with a description of the data that you used. What is the target variable? What features did you use? Include any pre-processing and cleaning (e.g., centering, removing outliers, etc.) Include tables with summary descriptions (e.g.,Table~\ref{sample-table}) ).
+\newline\newline
+\textbf{Ahmed}:\newline
+Initially I thought that since the data was Russian it would not give us much intuition on how to analyse it. So I went down the path of converting all the Russian names in English using package \textit{mtranslate}. \newline
+In Linear Regression we used 5 input features, namely \textit{"Month", "Item\_Cat", "Shop\_ID", "Item\_ID", and "Item\_Price"}. Mean category price was calculated per item category and used if an item price is NAN or not known from previous training data. We then use Pandas manipulations to get the sold Item Count per month for each item. Similar to unknown Item Prices, Item Count/Month was used as the mean item count of that item's category. Target variable was Item Count/Month  \newline\newline
+Data Processing and Cleaning:\newline
+Ahmed:\newline
+Using Pandas to ingest the input data.\newline
+Date data was read as an object not as datetime as we would like. \newline
+Fixed the Date type, translated the data into English to provide an intuition for potential grouping.\newline
+Merged all the data into one CSV file to help ease analysis, and downcasted the data into more reasonably sized data types to reduce memory usage and computation time.\newline
+Removing outliers and clipping did very minor changes in performance (in my linear Reg case)\newline
+
+\textbf{William}:\newline
+Talk about one-hot encoding and memory usage
+
+\textbf{Alex}:\newline
+Initially we cleaned the data by dropping outliers such as items with greater than 1,000 sales, a price greater than \$10,000, and a negative price. For items with negative sales, we tried deleting these items, doing nothing, and setting the sales to 0. Setting the sales to 0 gave us the best results. Shops 0 and 57, 1 and 58, 10 and 11 appear to be the same shop but for different time periods and shop 40 seems to be an "island" shop of shop 39, so we combined the similar shops to have the same \textit{"Shop\_ID"}.\newline
+From the \textit{"Shop\_Name"}, we were able to extract the city the shop was located in and the type of the shop. We also split the \textit{"Category\_Name"} into a \textit{"Category\_type"} and \textit{"Category\_Subtype"}. For the items, we extracted a \textit{"Name2"} and \textit{"Name3"} from the \textit{"Item\_Name"}. These are extra information (like the category information) that showed a relation between different items. Once we had all of these new features, we created one large DataFrame which had rows of every shop and item combinations in each month of the sales data, as well as the rows of the test set (which had the \textit{"Month\_ID"} set to 34). All of the new features were combined with this new DataFrame for the next step in processing.\newline
+We created more features by combining many of the current features such as getting the average item price per month for each item. From here we were able to create lag variables to be able to use these new features as features when making predictions. We tried many different lag values but determined that using lags of 1, 2, and 3 gave us the best results. Finally we added some date features such as the month each \textit{"Month\_ID"} represents and how many days are in that month. We ended my dropping the first few months worth of data because there were a ton of 0s in these rows from the lag variables.
+
+
+\section{Experiments}
+
+\subsection{Models}
+\textbf{What models did your team tried out?}
+(Fill in with a brief description of the learning algorithms and models your team tried. Don't just mention them, but add a bit of explanation on how they work and why you decided to try them. If you're using parametric models, remember to mention which parameters and how you selected them). \newline \newline
+Learning Algorithms and Models Attempted: \newline
+(Insert Bullet Points here....) \newline
+Linear Regression \textit{(similar to in-class assignment \#1)}\newline
+Neural Network \textit{(using Keras w/ Tensorflow backend)}\newline
+Combinations of these activation functions: \textit{linear, exponential, hard\_sigmoid, sigmoid, tanh, relu, softsign, softplus, softmax, elu} were tried. Along with varying the depth of the network \textit{(number of layers)}, number of nodes per layer, number of epochs the data was trained with over the network, batch size \textit{(2000, 20000, 70000)}, and different optimizers \textit{(Adam, Adadelta, Adagard, RMSprop)}
+
+
+\subsection{Evaluation}
+\textbf{How did you evaluate the performance of your models?}
+(Fill in with a description of evaluation metrics, and a description of any train/test split or cross-validation your team did)
+
+\textbf{Ahmed}:\newline
+Linear Regression:
+Validation set on Month 33 \textit{(corresponding to Oct 2015)} was used and test month as Month 34. \newline
+The provided data-set was split into 80\% Training and 20\% Validation randomly.\newline
+
+Neural Network:
+
+
+\begin{table}
+  \caption{Sample table title}
+  \label{sample-table}
+  \centering
+  \begin{tabular}{ccc}
+    Name & \# examples\\\hline
+    Train & xx \\
+    Test & yy \\
+    Eval & zz \\
+  \end{tabular}
+\end{table}
+
+\subsection{Setup}
+\textbf{How did you implement your models?}
+(What computational resources did you use? What programming language and which libraries?)\newline\newline
+CPU training for Linear Regression and a GPU-accelerated Docker container training running Tensorflow-gpu 1.15 for the Keras Neural Network.\newline
+
+Language: \textbf{Python}\newline
+Packages:\newline
+hyperopt, itertools, pdb, sklearn, numpy, pandas, math, xgboost, time, pickle, re, keras and matplotlib, random, datetime, and mtranslate\newline
+\begin{figure}
+  \centering
+  \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+  \caption{Sample figure caption.}
+  \label{fig:example}
+\end{figure}
+
+
+\section{Results}
+\textbf{What results did you get?}
+(While the numbers are important, also try to explain what this numbers mean. Why do you think the numbers look the way they do? For example, can you tell if your models are over-fitting the data? You might want to include some graphics like in Figure~\ref{fig:example})\newline\newline
+\textbf{Ahmed}: \newline
+My best Linear Regression submission scored a Root-Mean Squared Error (RMSE) of 1.35 and was our first submission. \newline\newline
+My best performing Neural Network submission scored a RMSE of 0.98 with the help of feature lagging with 32 different input features, 1-layer (not counting input and output layers) and a near-optimal number of nodes in that singular-layer network of 1024. Increasing the depth of the neural net was not beneficial. It would decrease prediction score against the validation set (being Month 33 corresponding to Oct 2015). A couple layers deep and it would cause a phenomenon commonly known as the \textit{"Vanishing Gradient Problem"}. This would change depending on the activation function used per layer respectively, but with numerous training runs the \textit{"elu"} activation function was found to the best performing on the single-layer architecture along with a \textit{"softplus"} activation function on the output layer. Researching articles online proved that the \textit{"Adam"} optimizer was one of the best to try out and was confirmed to drive the error to minimums quicker and faster. Naturally a Mean Squared Error (MSE) was used since this is the closest to the RMSE Kaggle scores submissions with.
+
+
+\section{Conclusion}
+\textbf{What did you learn from all this?}
+(Did you get any insights on why your model(s) work and why they did not? What would you have tried differently?)\newline\newline
+\textbf{Ahmed:} \newline
+In my opinion, I learned how to pre-process/clean a data-set and how this was arguably one of the most important steps in achieving a good predictor, as well as to implement Linear Regression, Xgboost, Time-Series, and Neural Networks (using Keras) on real-world data-sets. Lagging columns/features of the data-set led to a great boost in prediction performance, which makes sense since this problem is an ordered temporal task.\newline
+I am not sure what I would have done differently since one did not really know much about practically applying Machine Learning coming into this and all of this was necessary hacking to learn different packages, workflows, and which methods work better than others.
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}
